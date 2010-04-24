@@ -1,0 +1,34 @@
+A Murder Of Crows
+===============
+
+Entry in PyWeek #9  <http://www.pyweek.org/9/>
+Team: MurderCrow
+Members: FatHat, ecoffey, Airbrett
+
+
+DEPENDENCIES:
+
+You might need to install some of these before running the game:
+
+  Python
+  Pyglet
+  PyBox2D
+  Psyco 
+
+
+
+RUNNING THE GAME:
+
+On Windows or Mac OS X, locate the "run_game.py" file and double-click it.
+
+Othewise open a terminal / console and "cd" to the game directory and run:
+
+  python run_game.py
+
+
+
+HOW TO PLAY THE GAME:
+
+Left click to direct your MURDER OF CROWS.
+
+Do not let the people escape!
