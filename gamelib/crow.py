@@ -59,7 +59,7 @@ class Crow(object):
         self.speed = settings.crow_idle_speed
         self.blood_lust = 0
         self.resting = False
-        self.sprite = spritey.Spritey('data/characters/crow.png', self.phys_object.body, 8*settings.scale)
+        self.sprite = spritey.Spritey('data/characters/crow.png', self.phys_object.body, settings.crow_size)
     
     def on_hit(self, contact):
         pass

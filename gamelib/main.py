@@ -50,7 +50,7 @@ class MurderWindow(pyglet.window.Window):
     def set_projection(self, w, h):
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
-        gl.glOrtho(0, w, 0, h, -1, 1)
+        gl.glOrtho(-w/2, w/2, -h/2, h/2, -1, 1)
         gl.glMatrixMode(gl.GL_MODELVIEW)
     
     
