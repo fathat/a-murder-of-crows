@@ -1,5 +1,7 @@
+from __future__ import with_statement
 import pyglet
 import Box2D as box2d
+from Box2D import b2Vec2
 from camera import Camera, Projection
 from context import BaseContext
 from crow import Murder, Crow
@@ -201,6 +203,8 @@ class MapContext(BaseContext):
         speed = settings.crow_fast_speed
         wx, wy = self.camera.pixel_to_world(x, y)
         self.mx, self.my = wx, wy
+        self.camera.zoom_target = 1.5/settings.scale
+        self.camera.zoom_rate = 1.5
         for crow in self.murder.crows:
             crow.resting = False
             crow.speed = speed
@@ -219,7 +223,8 @@ class MapContext(BaseContext):
                                 settings.world_height*1.2)
                 crow.speed = settings.crow_idle_speed
             #crow.moveTowards(random.random() * 6 + x, random.random() * 6 + y )
-             
+            self.camera.zoom_target = 1/settings.scale
+            self.camera.zoom_rate = 5
         self.mouse_down = False
     
     def on_mouse_drag(self, x, y, dx, dy, button, modifiers):
@@ -277,7 +282,8 @@ class MapContext(BaseContext):
             self.people.remove(people_to_remove[-1])
         
         if self.mouse_down:
-            self.camera.move_towards(self.mx, self.my, 2, dt)
+            d = (b2Vec2(self.mx, self.my) - self.camera.look_at).Length()
+            self.camera.move_towards(self.mx, self.my, max(d, 2), dt)
         self.murder.update(dt)
         self.weather.update(dt)
         self.camera.update(dt)

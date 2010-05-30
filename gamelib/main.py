@@ -71,19 +71,19 @@ class MurderWindow(pyglet.window.Window):
         print settings.world_width, settings.world_height
     
     def on_mouse_press(self, x, y, button, modifiers):
-        self.context_manager.current_context.on_mouse_press(x*self.scale, y*self.scale, button, modifiers)
+        self.context_manager.current_context.on_mouse_press(x, y, button, modifiers)
     
     def on_mouse_release(self, x, y, button, modifiers):
-        self.context_manager.current_context.on_mouse_release(x*self.scale, y*self.scale, button, modifiers)
+        self.context_manager.current_context.on_mouse_release(x, y, button, modifiers)
         
     def on_mouse_motion(self, x, y, dx, dy):
-        self.context_manager.current_context.on_mouse_motion(x*self.scale, y*self.scale, dx, dy)
+        self.context_manager.current_context.on_mouse_motion(x, y, dx, dy)
     
     def on_mouse_drag(self, x, y, dx, dy, button, modifiers):
-        self.context_manager.current_context.on_mouse_drag(x*self.scale, y*self.scale, dx, dy, button, modifiers)
+        self.context_manager.current_context.on_mouse_drag(x, y, dx, dy, button, modifiers)
     
     def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
-        self.context_manager.current_context.on_mouse_scroll(x*self.scale, y*self.scale, scroll_x, scroll_y)
+        self.context_manager.current_context.on_mouse_scroll(x, y, scroll_x, scroll_y)
         
     def on_key_press(self, symbol, modifiers):
         super(MurderWindow, self).on_key_press(symbol, modifiers)
