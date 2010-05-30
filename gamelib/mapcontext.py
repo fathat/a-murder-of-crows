@@ -1,5 +1,6 @@
 import pyglet
 import Box2D as box2d
+from camera import Camera, Projection
 from context import BaseContext
 from crow import Murder, Crow
 from crate import Crate
@@ -93,7 +94,6 @@ class WinContext(BaseContext):
                             color=(255, 255, 255,255)))
     
     def draw_ui(self):
-        
         for x in self.labels:
             x.draw()
         
@@ -112,6 +112,8 @@ class MapContext(BaseContext):
     def __init__(self, window, name):
         BaseContext.__init__(self, name)
         self.window = window
+        self.camera = Camera(window)
+        self.camera.look_at = (64, 32)
         self.mouse_down = False
         self.init_world()
         self.time = 0
@@ -190,24 +192,22 @@ class MapContext(BaseContext):
     def on_key_press(self, symbol, modifiers):
         pass
     
+    def on_mouse_scroll(self, x, y, sx, sy):
+        self.camera.zoom_by(sy*0.1)
+    
     def on_mouse_press(self, x, y, button, modifiers):
-        self.mouse_down = True
-        if button == 1:
-            speed = settings.crow_fast_speed
-        else:
-            speed = settings.crow_slow_speed
-            
+        if button != 1: return
+        self.mouse_down = True        
+        speed = settings.crow_fast_speed
+        wx, wy = self.camera.pixel_to_world(x, y)
+        self.mx, self.my = wx, wy
         for crow in self.murder.crows:
             crow.resting = False
             crow.speed = speed
-            crow.moveTowards(random.random() * 2 + x, random.random() * 2 + y )
+            crow.moveTowards(random.random() * 2 + wx, random.random() * 2 + wy )
         
     def on_mouse_release(self, x, y, button, modifiers):
-        if button == 4:
-            for crow in self.murder.crows:
-                crow.target = None
-                crow.speed = settings.crow_fast_speed
-                #crow.moveTowards(random.random() * 12 + x, random.random() * 12 + y )
+
         if button == 1:
             for crow in self.murder.crows:
                 #crow.moveTowards(random.random() * 12 + x, random.random() * 12 + y )
@@ -224,11 +224,14 @@ class MapContext(BaseContext):
     
     def on_mouse_drag(self, x, y, dx, dy, button, modifiers):
         if button == 1:
+            wx, wy = self.camera.pixel_to_world(x, y)
+            self.mx, self.my = wx, wy
             for crow in self.murder.crows:
-                crow.moveTowards(random.random() + x, random.random() + y )
+                crow.moveTowards(random.random() + wx, random.random() + wy )
         else:
-            for crow in self.murder.crows:
-                crow.moveTowards(x, y )
+            self.camera.move_by(-dx, -dy)
+            #for crow in self.murder.crows:
+            #    crow.moveTowards(x, y )
     
     @property
     def width(self):
@@ -273,8 +276,11 @@ class MapContext(BaseContext):
             people_to_remove[-1].remove_from_world()
             self.people.remove(people_to_remove[-1])
         
+        if self.mouse_down:
+            self.camera.move_towards(self.mx, self.my, 2, dt)
         self.murder.update(dt)
         self.weather.update(dt)
+        self.camera.update(dt)
         self.world.SetContinuousPhysics(True)
         
         # Tell Box2D to step
@@ -283,20 +289,23 @@ class MapContext(BaseContext):
         self.world.Validate()
     
     def predraw(self):
-        self.bg.blit(0,0,0)
+        #self.bg.blit(0,0,0)
+        pass
+        
         
     def draw(self):
-        self.moon.draw()
-        self.weather.draw_background()
-        #self.scarecrow.draw()
-        
-        pyglet.gl.gl.glColor4f(0,0,0,1)
-        for ground in self.ground:
-            ground.draw()
-        self.murder.draw()
-        for thing in self.things:
-            thing.draw()
-        for person in self.people:
-            person.draw()
-        self.weather.draw_foreground()
+        with Projection(self.camera) as projection:
+            self.moon.draw()
+            self.weather.draw_background()
+            #self.scarecrow.draw()
+            
+            pyglet.gl.gl.glColor4f(0,0,0,1)
+            for ground in self.ground:
+                ground.draw()
+            self.murder.draw()
+            for thing in self.things:
+                thing.draw()
+            for person in self.people:
+                person.draw()
+            self.weather.draw_foreground()
         

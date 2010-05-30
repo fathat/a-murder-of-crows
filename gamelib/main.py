@@ -50,7 +50,7 @@ class MurderWindow(pyglet.window.Window):
     def set_projection(self, w, h):
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
-        gl.glOrtho(-w/2, w/2, -h/2, h/2, -1, 1)
+        gl.glOrtho(0, w, 0, h, -1, 1)
         gl.glMatrixMode(gl.GL_MODELVIEW)
     
     
@@ -81,6 +81,9 @@ class MurderWindow(pyglet.window.Window):
     
     def on_mouse_drag(self, x, y, dx, dy, button, modifiers):
         self.context_manager.current_context.on_mouse_drag(x*self.scale, y*self.scale, dx, dy, button, modifiers)
+    
+    def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
+        self.context_manager.current_context.on_mouse_scroll(x*self.scale, y*self.scale, scroll_x, scroll_y)
         
     def on_key_press(self, symbol, modifiers):
         super(MurderWindow, self).on_key_press(symbol, modifiers)
@@ -97,11 +100,7 @@ class MurderWindow(pyglet.window.Window):
         self.clear()
         gl.glColor4f(1,1,1,1)
         self.context_manager.current_context.predraw()
-        self.save_projection()
-        self.set_projection(self.width*self.scale, self.height*self.scale)
-        self.context_manager.current_context.draw()
-        self.restore_projection()
-        
+        self.context_manager.current_context.draw()       
         self.context_manager.current_context.draw_ui()
         
         #Gets fps and draw it

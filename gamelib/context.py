@@ -18,6 +18,9 @@ class BaseContext(object):
     def on_mouse_drag(self, x, y, dx, dy, button, modifiers):
         pass
     
+    def on_mouse_scroll(self, x, y, sx, sy):
+        pass
+    
     def on_key_press(self, symbol, modifiers):
         pass
     
