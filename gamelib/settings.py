@@ -2,7 +2,8 @@ width = 1280
 height = 720
 
 scale = 1.0/10.0
-fullscreen = 0
+svgscale = 1.0
+fullscreen = 1
 crow_size = 4 * scale
 world_width = width * scale
 world_height = height * scale

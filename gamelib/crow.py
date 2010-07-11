@@ -27,7 +27,7 @@ class Murder(object):
         self.batch = pyglet.graphics.Batch()
     
     def add_crow(self, target):
-        crow = Crow(self, abs(random.random()) *settings.world_width, abs(random.random())*(settings.world_height/4) + settings.world_height)
+        crow = Crow(self, abs(random.random()) *self.world_context.world_width, abs(random.random())*(self.world_context.world_height/4) + self.world_context.world_height)
         crow.target = target
         self.crows.append(crow)
     

@@ -14,6 +14,7 @@ import settings
 import math
 import gamestats
 import tweak
+import squirtle
 
 try:
     import psyco
@@ -110,6 +111,7 @@ class MapContext(BaseContext):
             [(100,0, 0, 0), (160, 0, 1, 0), (160, 5, 1, 1), (100, 5, 0, 1)],
             [(85,50, 0, 1), (90,45, 1, 0), (100, 40, 1.5, 0), (160, 40, 5, 0), (160, 50, 5, 1)]
         ]
+    level_data = 'data/level_.svg'
     
     def __init__(self, window, name):
         BaseContext.__init__(self, name)
@@ -124,6 +126,7 @@ class MapContext(BaseContext):
         self.spawn_time = 10
         self.average_speed = tweak.average_speed
         self.bg = pyglet.resource.image('data/bg/city_burning.jpg')
+        
     
     def on_activate(self):
         if settings.music:
@@ -131,10 +134,14 @@ class MapContext(BaseContext):
             self.music = self.music.play()
     
     def init_world(self):
+        self.svg = squirtle.SVG(self.level_data)
+        self.world_width = self.svg.width * settings.scale * settings.svgscale
+        self.world_height = self.svg.height * settings.scale * settings.svgscale
         self.init_physics()
         self.murder = Murder(self)
+
         for i in range(settings.crow_count):
-            self.murder.add_crow(box2d.b2Vec2(random.random()*settings.world_width, random.randint(int(settings.world_height*1.2), int(settings.world_height*1.5))))
+            self.murder.add_crow(box2d.b2Vec2(random.random()*self.world_width, random.randint(int(self.world_height*1.2), int(self.world_height*1.5))))
     
     def init_physics(self):
         # Box2D Initialization
@@ -160,20 +167,20 @@ class MapContext(BaseContext):
     def build_map_container(self):
         bd=box2d.b2BodyDef() 
         sd=box2d.b2PolygonDef()
-        bd.position = (settings.world_width//2, settings.world_height//2)
+        bd.position = (self.world_width//2, self.world_height//2)
         self.container = self.world.CreateBody(bd)
         
-        sd.SetAsBox(settings.world_width, 10.0*settings.scale, box2d.b2Vec2(0, -settings.world_height/2-5*settings.scale), 0 )
+        sd.SetAsBox(self.world_width, 10.0*settings.scale, box2d.b2Vec2(0, -self.world_height/2-5*settings.scale), 0 )
         self.container.CreateShape(sd)
         
         #top?
         #sd.SetAsBox(settings.world_width, 10.0*settings.scale, box2d.b2Vec2(0, settings.world_height/2+5*settings.scale), 0 )
         #self.container.CreateShape(sd)
         
-        sd.SetAsBox(10.0*settings.scale, settings.world_width, box2d.b2Vec2(settings.world_width/2+5*settings.scale, 0), 0 )
+        sd.SetAsBox(10.0*settings.scale, self.world_width, box2d.b2Vec2(self.world_width/2+5*settings.scale, 0), 0 )
         self.container.CreateShape(sd)
         
-        sd.SetAsBox(10.0*settings.scale, settings.world_width, box2d.b2Vec2(-settings.world_width/2-5*settings.scale, 0), 0 )
+        sd.SetAsBox(10.0*settings.scale, self.world_width, box2d.b2Vec2(-self.world_width/2-5*settings.scale, 0), 0 )
         self.container.CreateShape(sd)
     
     def build_ground(self):        
@@ -219,8 +226,8 @@ class MapContext(BaseContext):
                 #crow.target = box2d.b2Vec2(random.randint(int(settings.world_width/2)-60, int(settings.world_width/2))+30,
                 #                           random.randint(int(settings.world_height*0.8), int(settings.world_height)))
                 crow.target = box2d.b2Vec2(
-                                random.randint(int(settings.world_width/2)-60, int(settings.world_width/2))+30,
-                                settings.world_height*1.2)
+                                random.randint(int(self.world_width/2)-60, int(self.world_width/2))+30,
+                                self.world_height*1.2)
                 crow.speed = settings.crow_idle_speed
             #crow.moveTowards(random.random() * 6 + x, random.random() * 6 + y )
             self.camera.zoom_target = 1/settings.scale
@@ -304,7 +311,7 @@ class MapContext(BaseContext):
             self.moon.draw()
             self.weather.draw_background()
             #self.scarecrow.draw()
-            
+            self.svg.draw(0,0, 0, 0, settings.scale*settings.svgscale)
             pyglet.gl.gl.glColor4f(0,0,0,1)
             for ground in self.ground:
                 ground.draw()

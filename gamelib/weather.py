@@ -14,9 +14,9 @@ class FogParticle(object):
         
     
     def remake(self):
-        self.sprite.set_position(abs(random.random()) * settings.world_width-self.sprite.image.width*0.5*self.sprite.scale*settings.scale,
-                                 abs(random.random()) * settings.world_height- self.sprite.image.height*0.5*self.sprite.scale*settings.scale)
-        self.sprite.scale = (abs(random.random())+1) * settings.scale
+        self.sprite.set_position(abs(random.random()) * self.mapcontext.world_width-self.sprite.image.width*0.5*self.sprite.scale*settings.scale,
+                                 abs(random.random()) * self.mapcontext.world_height- self.sprite.image.height*0.5*self.sprite.scale*settings.scale)
+        self.sprite.scale = (abs(random.random())+1) * settings.scale * 3
         self.max_life = (random.random() + 1) * 8
         self.life = 0
         self.sprite.opacity = self.life*4
