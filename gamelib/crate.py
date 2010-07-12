@@ -12,7 +12,7 @@ class Crate(physics.Polygon):
                           (box_size,  box_size),
                           (-box_size,  box_size)]
         self.box_size = box_size
-        physics.Polygon.__init__(self, physics.PolygonDef(world, self.vertices, density=0.25, restitution=0.5))
+        physics.Polygon.__init__(self, physics.PolygonDef(world, self.vertices, density=0.05, restitution=0.5))
         self.body.position = location
         self.texture = pyglet.resource.texture('data/crate.png')
 

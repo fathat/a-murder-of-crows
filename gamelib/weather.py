@@ -23,7 +23,7 @@ class FogParticle(object):
         
     def update(self, dt):
         self.life += (dt * 4) * self.multiplier
-        self.sprite.opacity = self.life*10
+        self.sprite.opacity = self.life*3
         if self.life > self.max_life:
             self.multiplier *= -1
         if self.life < 0:

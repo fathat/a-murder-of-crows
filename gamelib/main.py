@@ -34,8 +34,9 @@ class MurderWindow(pyglet.window.Window):
         self.set_mouse_cursor(cursor)    
         
         self.context_manager = ContextManager([
-            menucontext.MenuContext(self),
+            
             mapcontext.MapContext(self, "MapContext"),
+            menucontext.MenuContext(self),
             mapcontext.WinContext(self)
             ])
         

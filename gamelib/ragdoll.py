@@ -61,6 +61,8 @@ class RagdollDef(object):
         self.RCalfPoly=box2d.b2PolygonDef()
         self.LThighPoly=box2d.b2PolygonDef()
         self.RThighPoly=box2d.b2PolygonDef()
+        self.LFootPoly.friction = 0.7
+        self.RFootPoly.friction = 0.7
        
         self.PelvisPoly=box2d.b2PolygonDef()
         self.StomachPoly=box2d.b2PolygonDef()

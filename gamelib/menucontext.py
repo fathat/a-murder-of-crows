@@ -10,10 +10,6 @@ from crate import Crate
 
 class MenuContext(MapContext):
     song = 'data/music/whistling.mp3'
-    ground_data = [
-          [(0,  0, 0, 0), (20, 0, 0.1, 1), (30, 20, 0.8, 1), (0, 20, 0, 1)],
-          [(30, 0, 0, 0), (100, 0, 4, 0), (100, 12, 4, 1), (60, 12, 2, 1)],
-          [(0, 0, 0, 0.5), (settings.world_width, 0, 7, 0.5), (settings.world_width, 8, 7, 1), (0, 8, 0, 1)]]
     
     def __init__(self, window):
         MapContext.__init__(self, window, "MenuContext")
@@ -40,8 +36,7 @@ class MenuContext(MapContext):
                             x=window.width//2, y=window.height//2,
                             anchor_x='center', anchor_y='center',
                             color=(0, 0, 0, 128))
-        self.stage = 0
-        self.on_activate()    
+        self.stage = 0 
 
     def build_objects(self):
         self.things = [Crate(self.world, (20, 20)),

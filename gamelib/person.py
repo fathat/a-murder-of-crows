@@ -64,7 +64,7 @@ class Person(object):
         if not self.is_dying: #and contact.velocity.Length() > 0.5:
             self.try_add_blood(contact)
             if self.joint_loss_cooldown == None:
-                self.joint_loss_cooldown = 0.15 + abs(random.random()*0.15)
+                self.joint_loss_cooldown = 0.05 + abs(random.random()*0.05)
             #if contact.velocity.Length() > 0.5:
             #    self.joint_loss_cooldown = 0
     
@@ -72,10 +72,10 @@ class Person(object):
     def walk(self, dt):
         if self.is_dying: self.joint_loss_cooldown -= dt
         if len(self.joints) > 8:
-            self.Head.ApplyForce(box2d.b2Vec2(self.speed*3, 50-self.speed*2), self.Head.position)
+            self.Head.ApplyForce(box2d.b2Vec2(self.speed*1, 50-self.speed*2), self.Head.position)
         if len(self.joints) >= 8:
-            self.Pelvis.ApplyForce(box2d.b2Vec2(self.speed*2, 5), self.Pelvis.position)
-            self.Chest.ApplyForce(box2d.b2Vec2(self.speed*3, 50-self.speed*2), self.Chest.position)
+            self.Pelvis.ApplyForce(box2d.b2Vec2(self.speed*0.5, 5), self.Pelvis.position)
+            self.Chest.ApplyForce(box2d.b2Vec2(self.speed*1, 50-self.speed*2), self.Chest.position)
         
         if int(self.time) % 2 == 0:
             polarity = -1
@@ -93,21 +93,14 @@ class Person(object):
             self.RHand.ApplyForce(box2d.b2Vec2(polarity, 0), self.RHand.GetWorldPoint(box2d.b2Vec2(1, 0)))
     
     def update(self, dt):
-        #if len(self.joints) <= 1:
-        #    self.remove_from_world()
-        #    return
-        
         self.time += dt*self.speed
         self.walk(dt)
         
         if self.is_dying and self.joint_loss_cooldown <= 0 and len(self.joints):
             self.joint_loss_cooldown = None
-            j = self.joints.pop()#random.choice(self.joints)
+            j = self.joints.pop()
             b1 = j.GetBody1()
             b2 = j.GetBody2()
-            #b1.ApplyImpulse(box2d.b2Vec2(random.random(), random.random())*10, b1.position)
-            #b2.ApplyImpulse(box2d.b2Vec2(random.random(), random.random())*10, b2.position)
-            #self.joints.remove(j)
             self.world.DestroyJoint(j)
             gamestats.add_limb()
             self.blood_fountains[b2] = BloodFountain(b2, self)
@@ -128,7 +121,7 @@ class Person(object):
     @property
     def is_dead(self):
         return len(self.joints) < 9
-    
+
     def draw(self):
         gl = pyglet.gl.gl
         if self.is_dying:
@@ -158,12 +151,6 @@ class Person(object):
         gl.glLineWidth(2)
         for body, fountain in self.blood_fountains.items():
             fountain.draw()
-        #batch = pyglet.graphics.Batch()
-        #for b in self.blood:
-        #    b.draw_batch(batch)
-        #for b in self.blood_fountains:
-        #    b.draw_batch(batch)
-        #batch.draw()
             
     def draw_head(self, poly):
         GL = pyglet.gl.gl
@@ -175,8 +162,6 @@ class Person(object):
             r = i * (math.pi/180.0)
             GL.glVertex2f(math.cos(r)*radius, math.sin(r)*radius)
         GL.glEnd()
-        
-    
     
     def draw_poly(self, poly):
         GL = pyglet.gl.gl
@@ -186,9 +171,17 @@ class Person(object):
             drawData.displayList = GL.glGenLists(1)
             GL.glNewList(drawData.displayList, GL.GL_COMPILE)
             GL.glColor4f(*drawData.color)
-            GL.glBegin(GL.GL_POLYGON)
-            for vx, vy in poly.vertices:
-                GL.glVertex2f(vx, vy)
+            GL.glLineWidth(4.0)
+            GL.glBegin(GL.GL_LINES)
+            x1, y1 = poly.vertices[0]
+            x2, y2 = poly.vertices[1]
+            x3, y3 = poly.vertices[2]
+            x4, y4 = poly.vertices[3]
+            #average
+            GL.glVertex2f((x1+x2)/2, (y1+y2)/2)
+            GL.glVertex2f((x3+x4)/2, (y3+y4)/2)
+            #for vx, vy in list(poly.vertices):
+            #    GL.glVertex2f(vx, vy)
             GL.glEnd()
             GL.glEndList()
         GL.glPushMatrix()

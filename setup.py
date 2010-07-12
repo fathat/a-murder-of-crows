@@ -8,7 +8,8 @@ opts = {
         "py2exe" : {
                 "bundle_files" : 1,
                 "optimize" : 2,
-                "dist_dir" : "exe"
+                "dist_dir" : "exe",
+                "packages":['pyexpat']
         }
 }
 
@@ -19,7 +20,7 @@ setup ( name = 'A Murder of Crows',
                 author_email = 'ian.overgard@gmail.com',
                 url='http://www.faceh.at',
                 windows=["run_game.py"],
-                data_files=["avbin.dll",
+                data_files=[
                                 ("data", glob.glob("data/*.*")),
                                 ("data/bg", glob.glob("data/bg/*.*")),
                                 ("data/characters", glob.glob("data/characters/*.*")),

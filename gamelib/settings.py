@@ -22,7 +22,7 @@ font = 'Pic0'
 
 max_blood = 512
 
-music=False
+music=True
 
 draw_blood = True
 

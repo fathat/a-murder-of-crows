@@ -8,6 +8,7 @@ Example usage:
 """
 
 from pyglet.gl import *
+import xml.etree.ElementTree
 from xml.etree.cElementTree import parse
 import re
 import math
@@ -113,6 +114,16 @@ class Matrix(object):
         a, b, c, d, e, f = self.values
         u, v, w, x, y, z = other.values
         return Matrix([a*u + c*v, b*u + d*v, a*w + c*x, b*w + d*x, a*y + c*z + e, b*y + d*z + f])
+
+class SvgPath(object):
+    def __init__(self, path, stroke, polygon, fill, transform, path_id, desc):
+        self.path = path if path else []
+        self.stroke = stroke
+        self.polygon = polygon
+        self.fill = fill
+        self.transform = transform
+        self.id = path_id
+        self.description = desc
                                
 class TriangulationError(Exception):
     """Exception raised when triangulation of a filled area fails. For internal use only.
@@ -245,7 +256,7 @@ class SVG(object):
                 Defaults to 10.
                 
         """
-        
+        self.paths = []
         self.filename = filename
         self.bezier_points = bezier_points
         self.circle_points = circle_points
@@ -339,7 +350,12 @@ class SVG(object):
     def render_slowly(self):
         self.n_tris = 0
         self.n_lines = 0
-        for path, stroke, tris, fill, transform,id in self.paths:
+        for svgpath in self.paths:
+            path = svgpath.path
+            stroke = svgpath.stroke
+            tris = svgpath.polygon
+            fill = svgpath.fill
+            transform = svgpath.transform
             if tris:
                 self.n_tris += len(tris)/3
                 if isinstance(fill, str):
@@ -410,8 +426,9 @@ class SVG(object):
         self.opacity *= float(e.get('opacity', 1))
         fill_opacity = float(e.get('fill-opacity', 1))
         stroke_opacity = float(e.get('stroke-opacity', 1))
-        
         self.path_id = e.get('id', '')
+        self.path_description = e.get('title', '')
+
         
         oldtransform = self.transform
         self.transform = self.transform * Matrix(e.get('transform'))
@@ -661,9 +678,9 @@ class SVG(object):
                     if (pt[0] - loop[-1][0])**2 + (pt[1] - loop[-1][1])**2 > TOLERANCE:
                         loop.append(pt)
                 path.append(loop)
-            self.paths.append((path if self.stroke else None, self.stroke,
+            self.paths.append(SvgPath(path if self.stroke else None, self.stroke,
                                self.triangulate(path) if self.fill else None, self.fill,
-                               self.transform, self.path_id))
+                               self.transform, self.path_id, self.path_description))
         self.path = []
 
     def triangulate(self, looplist):
