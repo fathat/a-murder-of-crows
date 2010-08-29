@@ -19,16 +19,19 @@ void main()
 ps = """
 
 uniform sampler2D stage1, stage2, stage3;
+uniform vec2 center;
+uniform float radius;
 
 void main()
 {
 	vec4 texel1, texel2, texel3;
 	vec4 result;
+	float intensity = 1.0 - (distance(gl_FragCoord.xy, center) / radius);
 	
 	texel1 = texture2D( stage1, gl_TexCoord[0].st );
 	//texel2 = texture2D( stage2, gl_TexCoord[1].st );
 	//texel3 = texture2D( stage3, gl_TexCoord[1].st );
-	result.rgb = texel1.rgb;// * texel2.rgb;
+	result.rgb = vec3(intensity);// * texel2.rgb;
 	result.a = 1.0;
 	//result.a   = texel3.b;
 	
@@ -51,6 +54,8 @@ glClearColor(0,0,1,1)
 squirtle.setup_gl()
 
 shader_program = shader.MakeProgramFromSource(vs, ps)
+shader_program.uniformf("radius", 200.0)
+shader_program.uniformf("center", 400.0, 300.0)
 #shader_program.stop()
 
 s = squirtle.SVG(filename)

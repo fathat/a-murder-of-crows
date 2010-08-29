@@ -39,19 +39,28 @@ class Shader(object):
     
     
     def infoLog( self ):
-        return glGetInfoLogARB (self.shaderObject )
+        c = ctypes
+        infoLogLength = c.c_long()
+        glGetObjectParameterivARB(self.shaderObject,
+                                  GL_OBJECT_INFO_LOG_LENGTH_ARB,
+                                  ctypes.pointer(infoLogLength))
+        buffer = c.create_string_buffer(infoLogLength.value)
+        c_text = c.cast(c.pointer(buffer),
+                        c.POINTER(GLchar)) 
+        glGetInfoLogARB (self.shaderObject, infoLogLength.value, None, c_text)
+        return c.string_at(c_text)
     
     def printInfoLog( self ):
         print self.infoLog()
 
 class UniformVar(object):
-    def __init__(self, set_function, name, value ):
+    def __init__(self, set_function, name, *args ):
         self.setFunction = set_function
         self.name = name
-        self.value = value
+        self.values = args
     
     def set(self):
-        self.setFunction( self.name, self.value )
+        self.setFunction( self.name, *self.values )
 
 class Program( object ):
     """An OpenGL shader program"""
@@ -88,14 +97,32 @@ class Program( object ):
         glUseProgramObjectARB( 0 )
         activeShader = None
     
-    def uniform1i( self, name, value ):
-        self.uniformVars[name] = UniformVar( self.set_uniform1i, name, value )
+        
+    def uniformi( self, name, *args ):
+        argf = {1 : glUniform1iARB,
+                2 : glUniform2iARB,
+                3 : glUniform3iARB,
+                4 : glUniform2iARB}
+        f = argf[len(args)]
+        def _set_uniform( name, *args ):
+            location = glGetUniformLocationARB( self.programObject, name )
+            f(location, *args)
+        self.uniformVars[name] = UniformVar(_set_uniform, name, *args )
+        if self == activeShader:
+            self.uniformVars[name].set()      
+    
+    def uniformf( self, name, *args ):
+        argf = {1 : glUniform1fARB,
+                2 : glUniform2fARB,
+                3 : glUniform3fARB,
+                4 : glUniform2fARB}
+        f = argf[len(args)]
+        def _set_uniform( name, *args ):
+            location = glGetUniformLocationARB( self.programObject, name )
+            f(location, *args)
+        self.uniformVars[name] = UniformVar(_set_uniform, name, *args )
         if self == activeShader:
             self.uniformVars[name].set()
-    
-    def set_uniform1i( self, name, value ):
-        location = glGetUniformLocationARB( self.programObject, name )
-        glUniform1iARB( location, value )
     
     def setVars(self):
         for name, var in self.uniformVars.iteritems():

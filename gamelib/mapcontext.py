@@ -25,10 +25,11 @@ except:
 
 from weather import Weather
 
-def decrow_contact(cls):
-    return decrow(point.shape1.GetBody().userData,
-                  point.shape2.GetBody().userData,
-                  cls)
+#def decrow_contact(cls):
+#    return decrow(point.shape1.GetBody().userData,
+#                  point.shape2.GetBody().userData,
+#                  cls)
+
 
 def decrow(e1, e2, cls):
     if isinstance(e1, cls):
