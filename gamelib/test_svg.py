@@ -10,15 +10,12 @@ vs = """
 
 void main()
 {
-	
 	gl_Position = ftransform();
-	gl_TexCoord[0] = gl_MultiTexCoord0;
-	gl_TexCoord[1] = gl_MultiTexCoord1;
 } 
 """
+
 ps = """
 
-uniform sampler2D stage1, stage2, stage3;
 uniform vec2 center;
 uniform float radius;
 
@@ -26,14 +23,12 @@ void main()
 {
 	vec4 texel1, texel2, texel3;
 	vec4 result;
+	
+	//calculate the intensity
 	float intensity = 1.0 - (distance(gl_FragCoord.xy, center) / radius);
 	
-	texel1 = texture2D( stage1, gl_TexCoord[0].st );
-	//texel2 = texture2D( stage2, gl_TexCoord[1].st );
-	//texel3 = texture2D( stage3, gl_TexCoord[1].st );
 	result.rgb = vec3(intensity);// * texel2.rgb;
 	result.a = 1.0;
-	//result.a   = texel3.b;
 	
 	gl_FragColor = result;
 }
@@ -53,10 +48,17 @@ glClearColor(0,0,1,1)
 
 squirtle.setup_gl()
 
-shader_program = shader.MakeProgramFromSource(vs, ps)
-shader_program.uniformf("radius", 200.0)
-shader_program.uniformf("center", 400.0, 300.0)
-#shader_program.stop()
+#shader_program = shader.MakeProgramFromSource(squirtle.vertex_shader_src, squirtle.radial_shader_src)
+#shader_program.uniformf("radius", 800.0)
+#shader_program.uniformf("center", 400.0, 300.0)
+#shader_program.uniformf("stops", 0.66, 0.75, 1.0, 0.0)
+#
+#shader_program.uniformf("stop0", 1.0, 0.0, 0.0, 1.0)
+#shader_program.uniformf("stop1", 0.0, 1.0, 0.0, 1.0)
+#shader_program.uniformf("stop2", 0.0, 0.0, 1.0, 1.0)
+#shader_program.uniformf("stop3", 0.0, 0.0, 0.0, 1.0)
+#shader_program.use()
+
 
 s = squirtle.SVG(filename)
 s.anchor_x, s.anchor_y = s.width/2, s.height/2

@@ -102,7 +102,7 @@ class Program( object ):
         argf = {1 : glUniform1iARB,
                 2 : glUniform2iARB,
                 3 : glUniform3iARB,
-                4 : glUniform2iARB}
+                4 : glUniform4iARB}
         f = argf[len(args)]
         def _set_uniform( name, *args ):
             location = glGetUniformLocationARB( self.programObject, name )
@@ -115,12 +115,26 @@ class Program( object ):
         argf = {1 : glUniform1fARB,
                 2 : glUniform2fARB,
                 3 : glUniform3fARB,
-                4 : glUniform2fARB}
+                4 : glUniform4fARB}
         f = argf[len(args)]
         def _set_uniform( name, *args ):
             location = glGetUniformLocationARB( self.programObject, name )
             f(location, *args)
         self.uniformVars[name] = UniformVar(_set_uniform, name, *args )
+        if self == activeShader:
+            self.uniformVars[name].set()
+    
+    def uniformMatrixf(self, name, transpose, values):
+        argf = {4 : glUniformMatrix2fvARB,
+                9 : glUniformMatrix3fvARB,
+                16 : glUniformMatrix4fvARB}
+        f = argf[len(values)]
+        def _set_uniform( name, values ):
+            location = glGetUniformLocationARB( self.programObject, name )
+            matrix_type = ctypes.c_float * len(values)
+            matrix = matrix_type(*values)
+            f(location, 1, transpose, cast(matrix, ctypes.POINTER(ctypes.c_float) ))
+        self.uniformVars[name] = UniformVar(_set_uniform, name, values )
         if self == activeShader:
             self.uniformVars[name].set()
     

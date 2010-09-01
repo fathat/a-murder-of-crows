@@ -15,6 +15,125 @@ import math
 from ctypes import CFUNCTYPE, POINTER, byref, cast
 import sys
 import string
+import shader
+
+
+vertex_shader_src = """
+varying vec4 location;
+
+
+void main()
+{
+    vec3 science = gl_Vertex.xyz;
+    location = vec4(science.x, science.y, science.z, 1);
+    gl_Position = ftransform();
+}
+"""
+
+radial_shader_src = """
+
+uniform vec2 center;
+uniform float radius;
+uniform float canvasHeight;
+
+uniform vec4 stops;
+
+uniform vec4 stop0;
+uniform vec4 stop1;
+uniform vec4 stop2;
+uniform vec4 stop3;
+uniform vec4 stop4;
+
+uniform mat3 invGradientTransform;
+
+varying vec4 location; 
+
+void main()
+{
+    vec4 result;
+    
+    vec3 transformed = invGradientTransform*vec3(location.x, canvasHeight-location.y, 1);
+
+    //calculate the intensity
+    float intensity = clamp(distance(transformed.xy, center) / radius, 0, 1 );
+    if(intensity <= stops.x)
+    {
+        result.rgba = mix(stop0, stop1, (intensity / stops.x));
+    }
+    else if(intensity <= stops.y)
+    {
+        result.rgba = mix(stop1, stop2, (intensity-stops.x) / (stops.y-stops.x));
+    }
+    else if(intensity <= stops.z)
+    {
+        result.rgba = mix(stop2, stop3, (intensity-stops.y) / (stops.z-stops.y));
+    }
+    else if(intensity <= stops.w)
+    {
+        result.rgba = mix(stop3, stop4, (intensity-stops.z) / (stops.w-stops.z));
+    }
+    
+    gl_FragColor = result;
+}
+"""
+
+linear_shader_src = """
+
+uniform vec2 start;
+uniform vec2 end;
+
+uniform float canvasHeight;
+uniform vec4 stops;
+
+uniform vec4 stop0;
+uniform vec4 stop1;
+uniform vec4 stop2;
+uniform vec4 stop3;
+uniform vec4 stop4;
+
+uniform mat3 invGradientTransform;
+
+varying vec4 location; 
+
+void main()
+{
+    vec4 result;
+    
+    vec3 transformed = invGradientTransform*vec3(location.x, canvasHeight-location.y, 1);
+    //return ((pt[0] - self.x1)*(self.x2 - self.x1) + (pt[1] - self.y1)*(self.y2 - self.y1)) / ((self.x1 - self.x2)**2 + (self.y1 - self.y2)**2)
+    
+    float num = (transformed.x - start.x)*(end.x - start.x) + (transformed.y - start.y)*(end.y - start.y);
+    float denom = pow(abs(start.x - end.x), 2) + pow(abs(start.y - end.y), 2);
+    float intensity =  clamp(num / denom, 0, 1);
+
+    //calculate the intensity
+    if(intensity <= stops.x)
+    {
+        result.rgba = mix(stop0, stop1, (intensity / stops.x));
+    }
+    else if(intensity <= stops.y)
+    {
+        result.rgba = mix(stop1, stop2, (intensity-stops.x) / (stops.y-stops.x));
+    }
+    else if(intensity <= stops.z)
+    {
+        result.rgba = mix(stop2, stop3, (intensity-stops.y) / (stops.z-stops.y));
+    }
+    else if(intensity <= stops.w)
+    {
+        result.rgba = mix(stop3, stop4, (intensity-stops.z) / (stops.w-stops.z));
+    }
+    
+    gl_FragColor = result;
+}
+"""
+
+#create shader
+radial_shader = shader.MakeProgramFromSource(vertex_shader_src, radial_shader_src)
+radial_shader.stop()
+
+linear_shader = shader.MakeProgramFromSource(vertex_shader_src, linear_shader_src)
+linear_shader.stop()
 
 tess = gluNewTess()
 gluTessNormal(tess, 0, 0, 1)
@@ -60,7 +179,11 @@ def parse_style(string):
             key, value = item.split(':')
             sdict[key] = value
     return sdict
-    
+
+def svg_matrix_to_gl_matrix(matrix):
+    v = matrix.values
+    return [v[0], v[1], 0.0, v[2], v[3], 0.0, v[4], v[5], 1.0]
+
 def parse_color(c, default=None):
     if not c:
         return default
@@ -91,6 +214,7 @@ class Matrix(object):
         if isinstance(string, str):
             if string.startswith('matrix('):
                 self.values = [float(x) for x in parse_list(string[7:-1])]
+                print "read matrix", self.values
             elif string.startswith('translate('):
                 x, y = [float(x) for x in parse_list(string[10:-1])]
                 self.values = [1, 0, 0, 1, x, y]
@@ -176,6 +300,7 @@ class Gradient(object):
         self.stops = sorted(self.stops.items())
         self.svg = svg
         self.inv_transform = Matrix(element.get('gradientTransform')).inverse()
+        self.grad_transform = Matrix(element.get('gradientTransform'))
 
         inherit = self.element.get('{http://www.w3.org/1999/xlink}href')
         parent = None
@@ -218,10 +343,52 @@ class Gradient(object):
     def tardy_gradient_parsed(self, gradient):
         self.get_params(gradient)
         
+    def apply_shader(self, transform): pass
+    
+    def unapply_shader(self, transform): pass
+        
 class LinearGradient(Gradient):
     params = ['x1', 'x2', 'y1', 'y2', 'stops']
     def grad_value(self, pt):
         return ((pt[0] - self.x1)*(self.x2 - self.x1) + (pt[1] - self.y1)*(self.y2 - self.y1)) / ((self.x1 - self.x2)**2 + (self.y1 - self.y2)**2)
+    
+    def apply_shader(self, transform):
+        if not self.stops: return
+        linear_shader.use()
+        print self.x1, self.y1
+        print self.x2, self.y2
+        print self.grad_transform((self.x1, self.y1))
+        linear_shader.uniformf("start", self.x1, self.y1)
+        linear_shader.uniformf("end", self.x2, self.y2)
+        linear_shader.uniformf("canvasHeight", self.svg.height)
+        linear_shader.uniformMatrixf("invGradientTransform",
+                                     False,
+                                     svg_matrix_to_gl_matrix(self.inv_transform))
+        print svg_matrix_to_gl_matrix(self.inv_transform)
+        stop_points = []
+        for stop in self.stops:
+            stop_point, color = stop
+            stop_points.append(stop_point)
+        while len(stop_points) < 5:
+            stop_points.append(0.0)
+        
+        #can't support more than 5 of these bad boys..
+        if len(stop_points) > 5:
+            stop_points = stop_points[:5]
+        
+        linear_shader.uniformf("stops", *(stop_points[1:]))
+        
+        def get_stop(i):
+            return self.stops[i] if i < len(self.stops) else (1.0, [0.0, 0.0, 0.0, 0.0])
+        
+        for i in xrange(len(stop_points)):
+            stop_point, color = get_stop(i)
+            color = tuple(float(x)/255.0 for x in color)
+            linear_shader.uniformf("stop" + str(i), *color)
+    
+    def unapply_shader(self):
+        if not self.stops: return
+        linear_shader.stop()
 
 class RadialGradient(Gradient):
     params = ['cx', 'cy', 'r', 'stops']
@@ -229,6 +396,42 @@ class RadialGradient(Gradient):
     def grad_value(self, pt):
         return math.sqrt((pt[0] - self.cx) ** 2 + (pt[1] - self.cy) ** 2)/self.r
         
+    def apply_shader(self, transform):
+        if not self.stops: return
+        radial_shader.use()
+        radial_shader.uniformf("radius", self.r)
+        radial_shader.uniformf("center", self.cx, self.cy)
+        radial_shader.uniformf("canvasHeight", self.svg.height)
+        print self.svg.height
+        radial_shader.uniformMatrixf("invGradientTransform",
+                                     False,
+                                     svg_matrix_to_gl_matrix(self.inv_transform))
+        stop_points = []
+        for stop in self.stops:
+            stop_point, color = stop
+            stop_points.append(stop_point)
+        
+        while len(stop_points) < 5:
+            stop_points.append(0.0)
+        
+        #can't support more than 4 of these bad boys..
+        if len(stop_points) > 5:
+            stop_points = stop_points[:5]
+        
+        radial_shader.uniformf("stops", *(stop_points[1:]))
+        
+        def get_stop(i):
+            return self.stops[i] if i < len(self.stops) else (1.0, [0.0, 0.0, 0.0, 0.0])
+        
+        for i in xrange(len(stop_points)):
+            stop_point, color = get_stop(i)
+            color = tuple(float(x)/255.0 for x in color)
+            radial_shader.uniformf("stop" + str(i), *color)
+    
+    def unapply_shader(self):
+        if not self.stops: return
+        radial_shader.stop()
+
 class SVG(object):
     """Opaque SVG image object.
     
@@ -358,6 +561,7 @@ class SVG(object):
             transform = svgpath.transform
             if tris:
                 self.n_tris += len(tris)/3
+                g = None
                 if isinstance(fill, str):
                     g = self.gradients[fill]
                     fills = [g.interp(x) for x in tris]
@@ -366,12 +570,15 @@ class SVG(object):
                 #pyglet.graphics.draw(len(tris), GL_TRIANGLES, 
                 #                     ('v3f', sum((x + [0] for x in tris), [])), 
                 #                     ('c3B', sum(fills, [])))
+                if g: g.apply_shader(transform)
                 glBegin(GL_TRIANGLES)
                 for vtx, clr in zip(tris, fills):
                     vtx = transform(vtx)
-                    glColor4ub(*clr)
+                    if not g: glColor4ub(*clr)
+                    else: glColor4f(1,1,1,1)
                     glVertex3f(vtx[0], vtx[1], 0)
                 glEnd()
+                if g: g.unapply_shader()
             if path:
                 for loop in path:
                     self.n_lines += len(loop) - 1
