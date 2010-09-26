@@ -19,6 +19,31 @@
   <defs
      id="defs3712">
     <linearGradient
+       id="linearGradient3630">
+      <stop
+         style="stop-color:#6e30a4;stop-opacity:1;"
+         offset="0"
+         id="stop3632" />
+      <stop
+         style="stop-color:#09ed0a;stop-opacity:1;"
+         offset="1"
+         id="stop3634" />
+    </linearGradient>
+    <inkscape:path-effect
+       effect="skeletal"
+       id="path-effect2850"
+       is_visible="true"
+       pattern="M 0,5 C 0,2.24 2.24,0 5,0 7.76,0 10,2.24 10,5 10,7.76 7.76,10 5,10 2.24,10 0,7.76 0,5 z"
+       copytype="single_stretched"
+       prop_scale="1"
+       scale_y_rel="false"
+       spacing="0"
+       normal_offset="0"
+       tang_offset="0"
+       prop_units="false"
+       vertical_pattern="false"
+       fuse_tolerance="0" />
+    <linearGradient
        id="linearGradient4258">
       <stop
          style="stop-color:#5de0dc;stop-opacity:1;"
@@ -69,6 +94,15 @@
        r="185.49281"
        gradientTransform="matrix(1,0,0,1.0340289,0,-10.666572)"
        gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3630"
+       id="linearGradient3636"
+       x1="1216.9246"
+       y1="320.98068"
+       x2="1269.0079"
+       y2="270.98068"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -77,8 +111,8 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.3"
-     inkscape:cx="280"
+     inkscape:zoom="0.48"
+     inkscape:cx="672"
      inkscape:cy="600"
      inkscape:current-layer="layer1"
      inkscape:document-units="px"
@@ -135,5 +169,13 @@
        inkscape:rounded="0"
        inkscape:randomized="0"
        d="m 983.33335,443.33332 -130.52007,-29.38574 -98.20109,90.86008 -12.38541,-133.21265 -116.75889,-65.31748 122.86546,-52.94421 26.04014,-131.2285 88.32045,100.49133 132.85257,-15.7862 -68.28043,115.05127 56.06727,121.4721 z" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 416.66667,760 733.33333,663.33333"
+       id="path2854" />
+    <path
+       style="fill:url(#linearGradient3636);stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="m 1346.6667,316.66667 c 7.7424,41.3931 -5.9439,65.94387 -36.6667,96.6667 -34.395,34.395 -194.7872,68.9718 -213.3333,13.3333 -2.2411,-6.7231 1.378,-16.443 0,-23.33333 -4.2892,-21.4457 -15.8229,-43.3752 -10,-66.66667 12.5492,-50.19691 62.8161,-37.9454 96.6666,-63.33333 31.6075,-23.7056 117.1551,-135.6898 153.3334,-63.33334 10.1912,20.38255 0.8963,78.71128 10,106.66667 z"
+       id="path2856" />
   </g>
 </svg>
