@@ -20,8 +20,8 @@ void main()
 {
     vec4 result;
     
-    vec3 transformed = invGradientTransform*vec3(location.x, location.y, 1);
-    vec3 realcenter = invGradientTransform*vec3(center.x, center.y, 1);
+    vec3 transformed = vec3(location.x, location.y, 1);
+    vec3 realcenter = transform*vec3(center.x, center.y, 1);
 
     //calculate the intensity
     float intensity = clamp(distance(transformed.xy, realcenter.xy) / radius, 0.0, 1.0 );

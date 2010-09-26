@@ -4,35 +4,9 @@ import shader
 
 import sys
 
-import squirtle
+import squirtle.svg
 
-vs = """
-
-void main()
-{
-	gl_Position = ftransform();
-} 
-"""
-
-ps = """
-
-uniform vec2 center;
-uniform float radius;
-
-void main()
-{
-	vec4 texel1, texel2, texel3;
-	vec4 result;
-	
-	//calculate the intensity
-	float intensity = 1.0 - (distance(gl_FragCoord.xy, center) / radius);
-	
-	result.rgb = vec3(intensity);// * texel2.rgb;
-	result.a = 1.0;
-	
-	gl_FragColor = result;
-}
-"""
+squirtle = squirtle.svg
 
 
 if len(sys.argv) > 1:

@@ -8,8 +8,12 @@ Example usage:
 """
 
 from pyglet.gl import *
-import xml.etree.ElementTree
-from xml.etree.cElementTree import parse
+try:
+    import xml.etree.ElementTree
+    from xml.etree.cElementTree import parse
+except:
+    import elementtree.ElementTree
+    from elementtree.ElementTree import parse
 import re
 import math
 from ctypes import CFUNCTYPE, POINTER, byref, cast, c_char_p
@@ -71,9 +75,7 @@ class SvgPath(object):
         self.description = desc
                                
 class TriangulationError(Exception):
-    """Exception raised when triangulation of a filled area fails. For internal use only.
-    
-    """
+    """Exception raised when triangulation of a filled area fails. For internal use only."""
     pass
 
 class SVG(object):
@@ -255,10 +257,10 @@ class SVG(object):
         self.width = self.parse_float(self.tree._root.get("width", '0'))
         self.height = self.parse_float(self.tree._root.get("height", '0'))
         if self.height:
-            self.transform = Matrix([1, 0, 0, -1, 0, 0])
+            self.transform = Matrix([1, 0, 0, 1, 0, 0])
         else:
             x, y, w, h = (self.parse_float(x) for x in parse_list(self.tree._root.get("viewBox")))
-            self.transform = Matrix([1, 0, 0, -1, 0, 0])
+            self.transform = Matrix([1, 0, 0, 1, 0, 0])
             self.height = h
             self.width = w
         self.opacity = 1.0

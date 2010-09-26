@@ -22,7 +22,12 @@ class Matrix(object):
     
     def __str__(self):
         return str(self.values)
-        
+    
+    def to_mat4():
+        return [v[0], v[1], 0.0, 0.0,
+                v[2], v[3], 0.0, 0.0,
+                0.0,  0.0,  1.0, 0.0,
+                v[4], v[5], 0.0, 1.0]
     
     def inverse(self):
         d = float(self.values[0]*self.values[3] - self.values[1]*self.values[2])
