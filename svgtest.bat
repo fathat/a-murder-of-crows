@@ -1,0 +1,1 @@
+python gamelib/test_svg.py data/test.svg
