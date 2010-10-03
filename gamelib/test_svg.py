@@ -20,6 +20,7 @@ w.push_handlers(keys)
 
 glClearColor(0,0,1,1)
 
+
 squirtle.setup_gl()
 
 #shader_program = shader.MakeProgramFromSource(squirtle.vertex_shader_src, squirtle.radial_shader_src)
@@ -46,9 +47,9 @@ draw_y = 300
 def tick(dt):
     global zoom, angle, draw_x, draw_y
     if keys[pyglet.window.key.W]:
-        draw_y -= 8
-    elif keys[pyglet.window.key.S]:
         draw_y += 8
+    elif keys[pyglet.window.key.S]:
+        draw_y -= 8
     elif keys[pyglet.window.key.D]:
         draw_x -= 8
     elif keys[pyglet.window.key.A]:
@@ -68,6 +69,10 @@ pyglet.clock.schedule_interval(tick, 1/60.0)
 @w.event
 def on_draw():
     w.clear()
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluOrtho2D(0.0, 800.0, 600, 0)
+    glMatrixMode(GL_MODELVIEW)
     s.draw(draw_x, draw_y, scale=zoom, angle=angle)
 
 pyglet.app.run()

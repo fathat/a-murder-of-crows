@@ -11,19 +11,23 @@ uniform vec4 stop2;
 uniform vec4 stop3;
 uniform vec4 stop4;
 
+uniform mat3 worldTransform;
+uniform mat3 gradientTransform;
 uniform mat3 invGradientTransform;
 
-varying vec4 location; 
+varying vec4 worldCoords;
+varying vec4 localCoords; 
 
 void main()
 {
     vec4 result;
-    
-    vec3 transformed = invGradientTransform*vec3(location.x, location.y, 1);
-    //return ((pt[0] - self.x1)*(self.x2 - self.x1) + (pt[1] - self.y1)*(self.y2 - self.y1)) / ((self.x1 - self.x2)**2 + (self.y1 - self.y2)**2)
-    
-    float num = (transformed.x - start.x)*(end.x - start.x) + (transformed.y - start.y)*(end.y - start.y);
-    float denom = pow(abs(start.x - end.x), 2.0) + pow(abs(start.y - end.y), 2.0);
+            
+    vec3 s = gradientTransform*vec3(start.x, start.y, 1);
+    vec3 d = gradientTransform*vec3(end.x, end.y, 1); 
+    vec3 l = localCoords.xyz;
+        
+    float num = (l.x - s.x)*(d.x - s.x) + (l.y - s.y)*(d.y - s.y);
+    float denom = pow(abs(s.x - d.x), 2.0) + pow(abs(s.y - d.y), 2.0);
     float intensity =  clamp(num / denom, 0.0, 1.0);
 
     //calculate the intensity

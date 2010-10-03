@@ -213,17 +213,18 @@ class SVG(object):
                     fills = [g.interp(x) for x in tris]
                 else:
                     fills = [fill for x in tris]
-                #pyglet.graphics.draw(len(tris), GL_TRIANGLES, 
-                #                     ('v3f', sum((x + [0] for x in tris), [])), 
-                #                     ('c3B', sum(fills, [])))
+                
+                glPushMatrix()
+                glMultMatrixf(as_c_matrix(transform.to_mat4()))
                 if g: g.apply_shader(transform)
                 glBegin(GL_TRIANGLES)
                 for vtx, clr in zip(tris, fills):
-                    vtx = transform(vtx)
+                    #vtx = transform(vtx)
                     if not g: glColor4ub(*clr)
                     else: glColor4f(1,1,1,1)
                     glVertex3f(vtx[0], vtx[1], 0)
                 glEnd()
+                glPopMatrix()
                 if g: g.unapply_shader()
             if path:
                 for loop in path:
@@ -236,15 +237,17 @@ class SVG(object):
                         strokes = [g.interp(x) for x in loop_plus]
                     else:
                         strokes = [stroke for x in loop_plus]
-                    #pyglet.graphics.draw(len(loop_plus), GL_LINES, 
-                    #                     ('v3f', sum((x + [0] for x in loop_plus), [])), 
-                    #                     ('c3B', sum((stroke for x in loop_plus), [])))
+                    glPushMatrix()
+                    glMultMatrixf(as_c_matrix(transform.to_mat4()))
                     glBegin(GL_LINES)
                     for vtx, clr in zip(loop_plus, strokes):
-                        vtx = transform(vtx)
+                        
+                        #vtx = transform(vtx)
                         glColor4ub(*clr)
                         glVertex3f(vtx[0], vtx[1], 0)
-                    glEnd()                     
+                    glEnd()
+                    glPopMatrix()
+                                     
     def parse_float(self, txt):
         if txt.endswith('px'):
             return float(txt[:-2])
@@ -448,10 +451,12 @@ class SVG(object):
         self.close_index = 0
         self.path = []
         self.loop = [] 
+        
     def close_path(self):
         self.loop.append(self.loop[0][:])
         self.path.append(self.loop)
         self.loop = []
+        
     def set_position(self, x, y):
         self.x = x
         self.y = y

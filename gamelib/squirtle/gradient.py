@@ -120,10 +120,10 @@ class LinearGradient(Gradient):
         print self.grad_transform((self.x1, self.y1))
         linear_shader.uniformf("start", self.x1, self.y1)
         linear_shader.uniformf("end", self.x2, self.y2)
-        linear_shader.uniformMatrixf("invGradientTransform",
+        linear_shader.uniformMatrixf("worldTransform", False, svg_matrix_to_gl_matrix(transform))
+        linear_shader.uniformMatrixf("gradientTransform",
                                      False,
-                                     svg_matrix_to_gl_matrix(self.inv_transform))
-        print svg_matrix_to_gl_matrix(self.inv_transform)
+                                     svg_matrix_to_gl_matrix(self.grad_transform))
         stop_points = []
         for stop in self.stops:
             stop_point, color = stop
@@ -153,6 +153,7 @@ class RadialGradient(Gradient):
     params = ['cx', 'cy', 'r', 'stops']
 
     def grad_value(self, pt):
+
         return math.sqrt((pt[0] - self.cx) ** 2 + (pt[1] - self.cy) ** 2)/self.r
         
     def apply_shader(self, transform):
@@ -160,9 +161,10 @@ class RadialGradient(Gradient):
         radial_shader.use()
         radial_shader.uniformf("radius", self.r)
         radial_shader.uniformf("center", self.cx, self.cy)
-        radial_shader.uniformMatrixf("transform", False, svg_matrix_to_gl_matrix(transform))
-        print "transform"
-        print transform.inverse()
+        radial_shader.uniformMatrixf("worldTransform", False, svg_matrix_to_gl_matrix(transform))
+        radial_shader.uniformMatrixf("gradientTransform",
+                                     False,
+                                     svg_matrix_to_gl_matrix(self.grad_transform))
         radial_shader.uniformMatrixf("invGradientTransform",
                                      False,
                                      svg_matrix_to_gl_matrix(self.inv_transform))

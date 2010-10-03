@@ -1,4 +1,5 @@
 import math
+import ctypes
 from parse import *
 
 class Matrix(object):
@@ -23,7 +24,8 @@ class Matrix(object):
     def __str__(self):
         return str(self.values)
     
-    def to_mat4():
+    def to_mat4(self):
+        v = self.values
         return [v[0], v[1], 0.0, 0.0,
                 v[2], v[3], 0.0, 0.0,
                 0.0,  0.0,  1.0, 0.0,
@@ -43,3 +45,8 @@ class Matrix(object):
 def svg_matrix_to_gl_matrix(matrix):
     v = matrix.values
     return [v[0], v[1], 0.0, v[2], v[3], 0.0, v[4], v[5], 1.0]
+
+def as_c_matrix(values):
+    matrix_type = ctypes.c_float * len(values)
+    matrix = matrix_type(*values)
+    return ctypes.cast(matrix, ctypes.POINTER(ctypes.c_float) )

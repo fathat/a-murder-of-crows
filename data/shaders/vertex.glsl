@@ -1,9 +1,10 @@
-varying vec4 location;
+varying vec4 worldCoords;
+varying vec4 localCoords;
 uniform mat3 transform;
 
 void main()
 {
-    vec3 science = gl_Vertex.xyz;
-    location = vec4(science.x, science.y, science.z, 1);
+	worldCoords = gl_ModelViewMatrix * gl_Vertex; 
+    localCoords = gl_Vertex;
     gl_Position = ftransform();
 }
