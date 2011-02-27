@@ -6,19 +6,17 @@ activeShader = None
 
 class Shader(object):
     """An OpenGL shader object"""
-    def __init__( self, shader_type, name="(unnamed shader)" ):
+    def __init__( self, shader_type, name ):
         self.shaderObject = glCreateShaderObjectARB( shader_type )
         self.name = name
         self.program = None
     
     def __del__ (self ):
-        print "ARRR!"
         if self.program:
             self.program.detachShader( self )
             self.program = None
         
         glDeleteShader( self.shaderObject )
-        print "Shader " + self.name + " deleted"
     
     def source( self, source_string ):
         c = ctypes
@@ -146,17 +144,17 @@ class Program( object ):
         print glGetInfoLogARB (self.programObject )
 
 
-def MakePixelShaderFromSource ( src ):
-    return MakeShaderFromSource( src, GL_FRAGMENT_SHADER_ARB )
+def MakePixelShaderFromSource (name, src ):
+    return MakeShaderFromSource(name, src, GL_FRAGMENT_SHADER_ARB )
 
-def MakeVertexShaderFromSource ( src ):
-    return MakeShaderFromSource( src, GL_VERTEX_SHADER_ARB )
+def MakeVertexShaderFromSource (name, src ):
+    return MakeShaderFromSource(name, src, GL_VERTEX_SHADER_ARB )
 
-def MakeShaderFromSource( src, shader_type ):
-        shader =  Shader( shader_type )
-        shader.source( src )
-        shader.compileShader()
-        return shader
+def MakeShaderFromSource(name, src, shader_type ):
+    shader =  Shader( shader_type, name )
+    shader.source( src )
+    shader.compileShader()
+    return shader
 
 def MakeProgramFromSourceFiles( vertex_shader_name, pixel_shader_name ):
     file = open( vertex_shader_name, "r")
@@ -165,11 +163,11 @@ def MakeProgramFromSourceFiles( vertex_shader_name, pixel_shader_name ):
     file = open( pixel_shader_name, "r")
     ps_src = file.tostring()
     file.close()
-    return MakeProgramFromSource( vs_src, ps_src )
+    return MakeProgramFromSource("(unnamed shader)", vs_src, ps_src )
 
-def MakeProgramFromSource( vertex_shader_src, pixel_shader_src ):
-    vs = MakeVertexShaderFromSource( vertex_shader_src )
-    ps = MakePixelShaderFromSource ( pixel_shader_src )
+def MakeProgramFromSource(name, vertex_shader_src, pixel_shader_src ):
+    vs = MakeVertexShaderFromSource(name, vertex_shader_src )
+    ps = MakePixelShaderFromSource (name, pixel_shader_src )
     
     p = Program()
     p.attachShader( vs )

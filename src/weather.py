@@ -38,7 +38,7 @@ class Weather(object):
         self.foreground_batch = pyglet.graphics.Batch()
         self.background_batch = pyglet.graphics.Batch()
         batches = [
-            self.foreground_batch,
+            #self.foreground_batch,
             self.background_batch,
             self.background_batch,
             self.background_batch
@@ -46,7 +46,7 @@ class Weather(object):
         
         self.particles = []
         num_particles = int(settings.world_width*1.25)
-        print num_particles
+        print "Fog Particles:", num_particles
         for i in xrange(num_particles):
             p = FogParticle(mapcontext, img, batches)
             self.particles.append(p)

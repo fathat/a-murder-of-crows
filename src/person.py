@@ -44,7 +44,9 @@ class Person(object):
         self.bodies = {}
     
     def try_add_blood(self, contact):
-        if isinstance(contact.shape1.GetBody().userData, Crow) or isinstance(contact.shape2.GetBody().userData, Crow):
+        touches_crow = (isinstance(contact.shape1.GetBody().userData, Crow)
+                        or isinstance(contact.shape2.GetBody().userData, Crow))
+        if touches_crow:
             p = box2d.b2Vec2(contact.position.x, contact.position.y)
             if len(self.blood) > settings.max_blood:
                 self.blood.pop()
@@ -61,12 +63,10 @@ class Person(object):
         self.hit_count -= 1
     
     def damage(self, contact):
-        if not self.is_dying: #and contact.velocity.Length() > 0.5:
-            self.try_add_blood(contact)
-            if self.joint_loss_cooldown == None:
-                self.joint_loss_cooldown = 0.05 + abs(random.random()*0.05)
-            #if contact.velocity.Length() > 0.5:
-            #    self.joint_loss_cooldown = 0
+        if self.is_dying: return
+        self.try_add_blood(contact)
+        if self.joint_loss_cooldown == None:
+            self.joint_loss_cooldown = 0.05 + abs(random.random()*0.05)
     
     
     def walk(self, dt):
@@ -172,16 +172,16 @@ class Person(object):
             GL.glNewList(drawData.displayList, GL.GL_COMPILE)
             GL.glColor4f(*drawData.color)
             GL.glLineWidth(4.0)
-            GL.glBegin(GL.GL_LINES)
-            x1, y1 = poly.vertices[0]
-            x2, y2 = poly.vertices[1]
-            x3, y3 = poly.vertices[2]
-            x4, y4 = poly.vertices[3]
+            GL.glBegin(GL.GL_POLYGON)
+            #x1, y1 = poly.vertices[0]
+            #x2, y2 = poly.vertices[1]
+            #x3, y3 = poly.vertices[2]
+            #x4, y4 = poly.vertices[3]
             #average
-            GL.glVertex2f((x1+x2)/2, (y1+y2)/2)
-            GL.glVertex2f((x3+x4)/2, (y3+y4)/2)
-            #for vx, vy in list(poly.vertices):
-            #    GL.glVertex2f(vx, vy)
+            #GL.glVertex2f((x1+x2)/2, (y1+y2)/2)
+            #GL.glVertex2f((x3+x4)/2, (y3+y4)/2)
+            for vx, vy in list(poly.vertices):
+                GL.glVertex2f(vx, vy)
             GL.glEnd()
             GL.glEndList()
         GL.glPushMatrix()

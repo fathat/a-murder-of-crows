@@ -131,16 +131,16 @@ class RagdollDef(object):
         
         if person.speed > 4 and random.random() > 0.9 :
             Colors = CColors()
-            Colors.skin = (0,0,0,1)#(0.75, 0.6, 0.5, 1)#(0.9, 0.6, 0.5, 1)
-            Colors.shirt = (0,0,0,1)#Colors.skin
-            Colors.jeans = (0,0,0,1)#Colors.skin
-            Colors.shoes = (0,0,0,1)#(0.65, 0.64, 0.4, 1)
+            Colors.skin = (0.75, 0.6, 0.5, 1)#(0.9, 0.6, 0.5, 1)
+            Colors.shirt = Colors.skin
+            Colors.jeans = Colors.skin
+            Colors.shoes = (0.65, 0.64, 0.4, 1)
         else:
             Colors = CColors()
-            Colors.skin = (0,0,0,1)#(0.75, 0.6, 0.5, 1)
-            Colors.shirt = (0,0,0,1)#(random.random()*0.25, random.random()*0.05, random.random()*0.4, 1)
-            Colors.jeans = (0,0,0,1)#(random.random()*0.25, random.random()*0.05, random.random()*0.4, 1)
-            Colors.shoes = (0,0,0,1)#Colors.skin#(0.0, 0.0, 0.0, 1)
+            Colors.skin = (0.6, 0.5, 0.75, 1)#(0.75, 0.6, 0.5, 1)
+            Colors.shirt = (random.random()*0.25, random.random()*0.05, random.random()*0.4, 1)
+            Colors.jeans = (random.random()*0.25, random.random()*0.05, random.random()*0.4, 1)
+            Colors.shoes = Colors.skin#(0.0, 0.0, 0.0, 1)
             
         # create body parts
         bdef = self

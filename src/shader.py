@@ -6,13 +6,12 @@ activeShader = None
 
 class Shader(object):
     """An OpenGL shader object"""
-    def __init__( self, shader_type, name="(unnamed shader)" ):
+    def __init__( self, shader_type, name):
         self.shaderObject = glCreateShaderObjectARB( shader_type )
         self.name = name
         self.program = None
     
     def __del__ (self ):
-        print "ARRR!"
         if self.program:
             self.program.detachShader( self )
             self.program = None

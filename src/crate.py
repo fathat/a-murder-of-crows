@@ -6,7 +6,7 @@ from pyglet.sprite import Sprite
 
 class Crate(physics.Polygon):
     
-    def __init__(self, world, location, box_size=1.5 ):
+    def __init__(self, world, location, box_size=0.75 ):
         self.vertices = [(-box_size, -box_size),
                           (box_size, -box_size),
                           (box_size,  box_size),

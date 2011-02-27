@@ -25,12 +25,6 @@ except:
 
 from weather import Weather
 
-#def decrow_contact(cls):
-#    return decrow(point.shape1.GetBody().userData,
-#                  point.shape2.GetBody().userData,
-#                  cls)
-
-
 def decrow(e1, e2, cls):
     if isinstance(e1, cls):
         return e1
@@ -115,7 +109,7 @@ class MapContext(BaseContext):
         self.init_world()
         self.time = 0
         self.spawn_countdown = 6
-        self.spawn_rate = 2
+        self.spawn_rate = 1
         self.spawn_time = 10
         self.average_speed = tweak.average_speed
         self.bg = pyglet.resource.image('data/bg/city_burning.jpg')
@@ -127,7 +121,7 @@ class MapContext(BaseContext):
             self.music = self.music.play()
     
     def init_world(self):
-        self.svg = squirtle.SVG(self.level_data)
+        self.svg = squirtle.SVG(self.level_data, invert_y=True)
         self.world_width = self.svg.width * settings.scale * settings.svgscale
         self.world_height = self.svg.height * settings.scale * settings.svgscale
         self.init_physics()
@@ -141,7 +135,7 @@ class MapContext(BaseContext):
         self.worldAABB = box2d.b2AABB()
         self.worldAABB.lowerBound = (-self.window.width*4, -self.window.height*4)
         self.worldAABB.upperBound = (self.window.width*8, self.window.height*8)
-        gravity = (0.0, -20.0)
+        gravity = (0.0, -21.0)
         
         doSleep = True
         self.contact_listener = ContactListener()
@@ -149,13 +143,8 @@ class MapContext(BaseContext):
         self.world.SetContactListener(self.contact_listener)
         self.build_map_container()
         self.build_ground()
-        self.build_objects()
-        
-        self.moon = pyglet.sprite.Sprite(img=pyglet.resource.image('data/moon.png'), x=settings.world_width*.75, y=settings.world_height*.75 )
-        self.moon.scale = settings.scale
+        self.build_objects()        
         self.weather = Weather(self)
-        self.scarecrow = pyglet.sprite.Sprite(pyglet.resource.image('data/scarecrow.png'), x=80, y=12)
-        self.scarecrow.scale = settings.scale
         
     def build_map_container(self):
         bd=box2d.b2BodyDef() 
@@ -180,7 +169,7 @@ class MapContext(BaseContext):
         def make_edge(svgpath):
             r = []
             #print svgpath.transform
-            if not svgpath.id.startswith('ground'): return None
+            #if not svgpath.id.startswith('ground'): return None
             for loop in svgpath.path:
                 bd = box2d.b2BodyDef()
                 bd.position = (0,0)
@@ -202,11 +191,10 @@ class MapContext(BaseContext):
     
     def build_objects(self):
         #cd = physics.CircleDef(self.world, 3.0, density=0.2)
-        self.things = [#physics.Circle(cd, (60, 22)),
-                       Crate(self.world, (100, 55)),
-                       Crate(self.world, (100, 59)),
-                       Crate(self.world, (95,  55)),
-                       Crate(self.world, (110, 55))]
+        self.things = [Crate(self.world, (105, 60)),
+                       Crate(self.world, (105, 65)),
+                       Crate(self.world, (110,  60)),
+                       Crate(self.world, (115, 60))]
         self.people = []
     
     def on_key_press(self, symbol, modifiers):
@@ -217,7 +205,7 @@ class MapContext(BaseContext):
         
     
     def on_mouse_scroll(self, x, y, sx, sy):
-        self.camera.zoom_by(sy*0.2)
+        self.camera.zoom_by(sy*0.5)
     
     def on_mouse_press(self, x, y, button, modifiers):
         if button != 1: return
@@ -225,24 +213,24 @@ class MapContext(BaseContext):
         speed = settings.crow_fast_speed
         wx, wy = self.camera.pixel_to_world(x, y)
         self.mx, self.my = wx, wy
-        self.camera.zoom_target = 1.5/settings.scale
-        self.camera.zoom_rate = 7.5
+        #self.camera.zoom_target = 1.5/settings.scale
+        #self.camera.zoom_rate = 7.5
         for crow in self.murder.crows:
             crow.resting = False
             crow.speed = speed
-            crow.moveTowards(random.random() * 2 + wx, random.random() * 2 + wy )
+            crow.moveTowards(random.random() * 4 + wx, random.random() * 4 + wy )
 
     def on_mouse_release(self, x, y, button, modifiers):
-
         if button == 1:
+            wx, wy = self.camera.pixel_to_world(x, y)
             for crow in self.murder.crows:
                 crow.resting = False
                 crow.target = box2d.b2Vec2(
-                                random.randint(int(self.world_width/2)-60, int(self.world_width/2))+30,
+                                random.randint(int(wx)-3, int(wx)+3),
                                 self.world_height*1.2)
                 crow.speed = settings.crow_idle_speed
-            self.camera.zoom_target = 0.75/settings.scale
-            self.camera.zoom_rate = 7.5
+            #self.camera.zoom_target = 0.75/settings.scale
+            #self.camera.zoom_rate = 7.5
         self.mouse_down = False
     
     def on_mouse_drag(self, x, y, dx, dy, button, modifiers):
@@ -255,12 +243,10 @@ class MapContext(BaseContext):
             self.camera.move_by(-dx, -dy)
     
     @property
-    def width(self):
-        return self.worldAABB.upperBound.x
+    def width(self): return self.worldAABB.upperBound.x
     
     @property
-    def height(self):
-        return self.worldAABB.upperBound.y
+    def height(self): return self.worldAABB.upperBound.y
     
     def spawn_enemies(self, dt):
         self.spawn_countdown -= dt
@@ -271,9 +257,11 @@ class MapContext(BaseContext):
             self.spawn_time -= 0.15
             if self.spawn_time < 2: self.spawn_countdown = 2
             for x in range(int(self.spawn_rate)):
-                self.people.append(person.Person(self.world, (x*2, 55), self.average_speed + random.random()))
+                self.people.append(person.Person(self.world, (x*2, 70), self.average_speed + random.random()))
             self.spawn_rate += 0.15
-            print self.spawn_countdown, self.spawn_rate, self.average_speed
+            print "Spawn Countdown:", self.spawn_countdown,
+            print ", Spawn Rate:", self.spawn_rate,
+            print ", Average Speed:", self.average_speed
     
     def update(self, dt):
         if self.time >= 140:
@@ -300,6 +288,7 @@ class MapContext(BaseContext):
         if self.mouse_down:
             d = (b2Vec2(self.mx, self.my) - self.camera.look_at).Length()
             self.camera.move_towards(self.mx, self.my, max(d, 2), dt)
+        
         self.murder.update(dt)
         self.weather.update(dt)
         self.camera.update(dt)
@@ -310,19 +299,14 @@ class MapContext(BaseContext):
         self.world.Step(dt, 10, 10)
         self.world.Validate()
     
-    def predraw(self):
-        #self.bg.blit(0,0,0)
-        pass
-        
-        
+    def predraw(self): pass
+
     def draw(self):
         with Projection(self.camera) as projection:
-            self.moon.draw()
             self.weather.draw_background()
             self.svg.draw(0,0, 0, 0, settings.scale*settings.svgscale)
             pyglet.gl.gl.glColor4f(0,0,0,1)
-            #for ground in self.ground:
-            #    ground.draw()
+
             self.murder.draw()
             for thing in self.things:
                 thing.draw()

@@ -33,12 +33,11 @@ class MurderWindow(pyglet.window.Window):
         cursor = self.get_system_mouse_cursor(pyglet.window.Window.CURSOR_CROSSHAIR)
         self.set_mouse_cursor(cursor)    
         
-        self.context_manager = ContextManager([
-            
+        self.context_manager = ContextManager([    
             mapcontext.MapContext(self, "MapContext"),
             menucontext.MenuContext(self),
             mapcontext.WinContext(self)
-            ])
+        ])
         
         self.keys = pyglet.window.key.KeyStateHandler()
         self.push_handlers(self.keys)
@@ -69,7 +68,7 @@ class MurderWindow(pyglet.window.Window):
         self.set_viewport(width, height)
         settings.world_width = width * settings.scale
         settings.world_height = height * settings.scale
-        print settings.world_width, settings.world_height
+        print "World Size: ", (settings.world_width, settings.world_height)
     
     def on_mouse_press(self, x, y, button, modifiers):
         self.context_manager.current_context.on_mouse_press(x, y, button, modifiers)
@@ -91,7 +90,6 @@ class MurderWindow(pyglet.window.Window):
         self.context_manager.current_context.on_key_press(symbol, modifiers)
     
     def step(self):
-        #Tick the clock
         dt = pyglet.clock.tick() 
         self.context_manager.current_context.update(dt)
     
@@ -111,10 +109,15 @@ class MurderWindow(pyglet.window.Window):
 
 
 def main():
+    config = pyglet.gl.Config(sample_buffers=1, samples=4)
     if settings.fullscreen:
-        mw = MurderWindow(vsync=0, fullscreen=settings.fullscreen)
+        mw = MurderWindow(vsync=0,
+                          fullscreen=settings.fullscreen)
     else:
-        mw = MurderWindow(width=settings.width, height=settings.height, vsync=0, fullscreen=settings.fullscreen)
+        mw = MurderWindow(width=settings.width,
+                          height=settings.height,
+                          vsync=0,
+                          fullscreen=settings.fullscreen)
     mw.init()
     
     while not mw.has_exit:

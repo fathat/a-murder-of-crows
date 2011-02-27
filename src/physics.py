@@ -3,7 +3,7 @@ import graphics
 import Box2D as box2d
 import math
 
-print box2d.b2_maxPairs
+print "Maximum Box 2D Pairs:", box2d.b2_maxPairs
 
 class MyVeryOwnContactListener(box2d.b2ContactListener):
     def Add(self, point):

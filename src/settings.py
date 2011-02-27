@@ -1,10 +1,10 @@
-width = 1280
+width = 1024
 height = 720
 
 scale = 1.0/10.0
 svgscale = 1.0
-fullscreen = 1
-crow_size = 4 * scale
+fullscreen = False
+crow_size = 6 * scale
 world_width = width * scale
 world_height = height * scale
 person_size =  35 * scale
@@ -14,7 +14,7 @@ crow_slow_speed = 300 * scale
 crow_idle_speed = 400 * scale
 
 crow_shape = 'triangle'
-crow_count = 50
+crow_count = 20
 
 fog_fall_speed = 1.0*scale
 
